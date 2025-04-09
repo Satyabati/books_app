@@ -1,8 +1,9 @@
 const express = require('express');
 const axios = require('axios');
-const app = express();
-const PORT = 3000;
 const cors = require('cors');
+
+const app = express();
+
 app.use(cors());
 
 // Replace with your valid API key
@@ -11,8 +12,8 @@ const BASE_URL = 'https://www.googleapis.com/books/v1/volumes';
 
 app.get('/books', async (req, res) => {
   const query = req.query.q || 'something';
-  const page = parseInt(req.query.page ) || 1;
-  const limit = parseInt(req.query.limit) || 10;
+  const page = parseInt(String(req.query.page)) || 1;
+  const limit = parseInt(String(req.query.limit)) || 10;
 
   // Calculate the start index based on page and limit
   const startIndex = (page - 1) * limit;
@@ -29,7 +30,6 @@ app.get('/books', async (req, res) => {
 
     const { totalItems = 0, items = [] } = response.data;
     const allAuthors = items.flatMap(book => book.volumeInfo.authors ?? ['Unknown author']);
-    console.log(allAuthors);
 
     // Google Books API only returns a max of 40 items
     const cappedTotalItems = Math.min(totalItems, 40);
@@ -51,7 +51,4 @@ app.get('/books', async (req, res) => {
   }
 });
 
-
-app.listen(PORT, () => {
-  console.log(`Server is running at http://localhost:${PORT}`);
-});
+module.exports = app;

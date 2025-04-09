@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon index.tsx"
+    "start": "nodemon server.js"
   },
   "keywords": [],
   "author": "",
@@ -15,5 +15,8 @@
     "nodemon": "^3.1.9",
     "socket.io": "^2.2.0"
   },
-  "description": ""
+  "description": "",
+  "devDependencies": {
+    "@types/express": "^5.0.1"
+  }
 }
