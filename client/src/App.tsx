@@ -16,7 +16,7 @@ import {
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { Book } from './app';
-// import { API_BASE_URL } from './constant';
+import { fetchBooksFromServer } from './service.tsx';
 
 const App: React.FC = () => {
   const [query, setQuery] = useState('');
@@ -30,30 +30,7 @@ const App: React.FC = () => {
   const [earliestDate, setEarliestDate] = useState<Date | null>(null);
   const [latestDate, setLatestDate] = useState<Date | null>(null);
 
-  const fetchBooksFromServer = async (
-    query: string,
-    page: number,
-    limit: number
-  ): Promise<{ items: Book[]; totalItems: number; responseTime: number,allAuthors:string[] }> => {
-    const start = performance.now();
-    const res = await fetch(
-      `http://localhost:3000/books?q=${encodeURIComponent(query)}&page=${page}&limit=${limit}`
-    );
-    const end = performance.now(); // capture end time
-    const elapsed = end - start;
-  
-    if (!res.ok) {
-      throw new Error('Failed to fetch books');
-    }
-  
-    const data = await res.json();
-    return {
-      items: data?.items ?? [],
-      totalItems: data?.totalItems ?? 0,
-      responseTime: elapsed,
-      allAuthors: data?.allAuthors??[]
-    };
-  };
+
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setQuery(e.target.value);
