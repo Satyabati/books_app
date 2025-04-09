@@ -189,10 +189,16 @@ const latestDate = publicationDates.length
                   {authors.join(', ')} - <strong>{title}</strong>
                 </Typography>
               </AccordionSummary>
-              {description && (
+              {description ? (
                 <AccordionDetails>
                   <Typography variant="body2" color="text.secondary">
                     {description}
+                  </Typography>
+                </AccordionDetails>
+              ):(
+                <AccordionDetails>
+                  <Typography variant="body2" color="text.secondary">
+                   No description present
                   </Typography>
                 </AccordionDetails>
               )}
