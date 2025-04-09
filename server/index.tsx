@@ -28,6 +28,8 @@ app.get('/books', async (req, res) => {
     });
 
     const { totalItems = 0, items = [] } = response.data;
+    const allAuthors = items.flatMap(book => book.volumeInfo.authors ?? ['Unknown author']);
+    console.log(allAuthors);
 
     // Google Books API only returns a max of 40 items
     const cappedTotalItems = Math.min(totalItems, 40);
@@ -39,6 +41,7 @@ app.get('/books', async (req, res) => {
       totalItems: cappedTotalItems,
       totalPages,
       items,
+      allAuthors
     });
   } catch (error) {
     res.status(500).json({

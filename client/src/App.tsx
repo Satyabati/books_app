@@ -26,13 +26,15 @@ const App: React.FC = () => {
   const [totalItems, setTotalItems] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [responseTime, setResponseTime] = useState<number | null>(null);
-
+  const [mostFrequentAuthor, setMostFrequentAuthor] = useState<string | null>(null);
+  const [earliestDate, setEarliestDate] = useState<Date | null>(null);
+  const [latestDate, setLatestDate] = useState<Date | null>(null);
 
   const fetchBooksFromServer = async (
     query: string,
     page: number,
     limit: number
-  ): Promise<{ items: Book[]; totalItems: number; responseTime: number }> => {
+  ): Promise<{ items: Book[]; totalItems: number; responseTime: number,allAuthors:string[] }> => {
     const start = performance.now();
     const res = await fetch(
       `http://localhost:3000/books?q=${encodeURIComponent(query)}&page=${page}&limit=${limit}`
@@ -46,9 +48,10 @@ const App: React.FC = () => {
   
     const data = await res.json();
     return {
-      items: data.items ?? [],
-      totalItems: data.totalItems ?? 0,
+      items: data?.items ?? [],
+      totalItems: data?.totalItems ?? 0,
       responseTime: elapsed,
+      allAuthors: data?.allAuthors??[]
     };
   };
 
@@ -74,10 +77,38 @@ const App: React.FC = () => {
     }
 
     try {
+      const authorCount: Record<string, number> = {};
       const res = await fetchBooksFromServer(query, page, limit);
+
+        const authors = res.allAuthors ?? ['Unknown author'];
+        authors.forEach((author) => {
+          authorCount[author] = (authorCount[author] || 0) + 1;
+        });
+
+      const mostCommonAuthor = Object.entries(authorCount).reduce(
+        (max, current) => (current[1] > max[1] ? current : max),
+        ['', 0]
+      )[0];
+
+const publicationDates = books
+  .map(book => book.volumeInfo.publishedDate)
+  .filter((date): date is string => typeof date === 'string') // ensures date is a string
+  .map(dateStr => new Date(dateStr))
+  .filter(date => !isNaN(date.getTime())); // removes invalid dates
+
+const earliestDate = publicationDates.length
+  ? new Date(Math.min(...publicationDates.map(d => d.getTime())))
+  : null;
+
+const latestDate = publicationDates.length
+  ? new Date(Math.max(...publicationDates.map(d => d.getTime())))
+  : null;
+  setEarliestDate(earliestDate);
+  setLatestDate(latestDate);
       setBooks(res.items);
       setTotalItems(res.totalItems);
       setResponseTime(Math.round(res.responseTime));
+      setMostFrequentAuthor(mostCommonAuthor || null);
     } catch (error) {
       console.error('Error fetching books:', error);
     }
@@ -141,6 +172,11 @@ const App: React.FC = () => {
     Showing {books.length} of {totalItems} result{totalItems !== 1 && 's'}
   </Typography>
 )}
+{earliestDate && latestDate && (
+  <Typography variant="body2" sx={{ mb: 2 }}>
+    📚 Published between <strong>{earliestDate.toDateString()}</strong> and <strong>{latestDate.toDateString()}</strong>
+  </Typography>
+)}
   
       <Box mt={2}>
         {books.map((book) => {
@@ -164,6 +200,11 @@ const App: React.FC = () => {
           );
         })}
       </Box>
+      {mostFrequentAuthor && (
+  <Typography variant="subtitle1" mt={2}>
+    Most common author in results: <strong>{mostFrequentAuthor}</strong>
+  </Typography>
+)}
       {responseTime !== null && (
   <Typography variant="subtitle2" mt={1} color="text.secondary">
     Server response time: {responseTime} ms
