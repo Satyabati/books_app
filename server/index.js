@@ -7,7 +7,7 @@ const app = express();
 app.use(cors());
 
 // Replace with your valid API key
-const GOOGLE_BOOKS_API_KEY = 'AIzaSyAdMzS4IKF5k31j5XAzNTiJFJ5zxZ24Jww';
+const GOOGLE_BOOKS_API_KEY = `[Place holder place a valid api key for google api]`;
 const BASE_URL = 'https://www.googleapis.com/books/v1/volumes';
 
 app.get('/books', async (req, res) => {
